@@ -2,7 +2,7 @@ package match
 
 type wantPlay struct {
 	player string
-	tok    chan Token
+	ch     chan Communication
 }
 
 type server struct {
@@ -46,16 +46,26 @@ func (s *server) match(c chan struct{}) {
 			a.player,
 			b.player,
 		}
-		a.tok <- tok
-		b.tok <- tok
-		close(a.tok)
-		close(b.tok)
+		a2b := make(chan string)
+		b2a := make(chan string)
+		a.ch <- Communication{
+			Recn: tok,
+			Recv: b2a,
+			Send: a2b,
+		}
+		b.ch <- Communication{
+			Recn: tok,
+			Recv: a2b,
+			Send: b2a,
+		}
+		close(a.ch)
+		close(b.ch)
 		c <- struct{}{}
 	}
 }
 
-func (s *server) WantPlay(player string) <-chan Token {
-	c := make(chan Token)
+func (s *server) WantPlay(player string) <-chan Communication {
+	c := make(chan Communication)
 	go func() { s.wantPlay <- wantPlay{player, c} }()
 	return c
 }

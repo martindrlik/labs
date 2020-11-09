@@ -21,15 +21,30 @@ func TestCannotListenTwice(t *testing.T) {
 func TestWantPlay(t *testing.T) {
 	s := match.NewServer()
 	defer s.Listen()()
-	c := make(chan match.Token)
+	c := make(chan match.Communication)
 	go func() { c <- <-s.WantPlay("player1") }()
 	go func() { c <- <-s.WantPlay("player2") }()
-	t1 := (<-c).String()
-	t2 := (<-c).String()
-	if t1 == "" || t2 == "" {
-		t.Errorf("expected players to get non empty token: t1(%q) t2(%q)", t1, t2)
-	}
-	if t1 == "" || t1 != t2 {
-		t.Errorf("expected players to get the same token: t1(%q) t2(%q)", t1, t2)
-	}
+	p1 := <-c
+	p2 := <-c
+	t1 := p1.Recn.String()
+	t2 := p2.Recn.String()
+	t.Run("non empty reconnect token", func(t *testing.T) {
+		if t1 == "" || t2 == "" {
+			t.Errorf("expected players to get non empty token: t1(%q) t2(%q)", t1, t2)
+		}
+	})
+	t.Run("same reconnect token", func(t *testing.T) {
+		if t1 == "" || t1 != t2 {
+			t.Errorf("expected players to get the same token: t1(%q) t2(%q)", t1, t2)
+		}
+	})
+	t.Run("send", func(t *testing.T) {
+		go func() { p1.Send <- "hello" }()
+	})
+	t.Run("retrieve", func(t *testing.T) {
+		msg := <-p2.Recv
+		if msg != "hello" {
+			t.Errorf("expected to receive \"hello\", got %s", msg)
+		}
+	})
 }
