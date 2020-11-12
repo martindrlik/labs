@@ -6,8 +6,9 @@ type wantPlay struct {
 }
 
 type server struct {
-	playing  map[Token][2]string
-	wantPlay chan wantPlay
+	bufferSize int
+	playing    map[Token][2]string
+	wantPlay   chan wantPlay
 }
 
 func NewServer() *server {
@@ -19,7 +20,11 @@ func (s *server) Listen() (cancel func()) {
 		panic("already listening")
 	}
 	s.playing = make(map[Token][2]string)
-	s.wantPlay = make(chan wantPlay)
+	if s.bufferSize > 0 {
+		s.wantPlay = make(chan wantPlay, s.bufferSize)
+	} else {
+		s.wantPlay = make(chan wantPlay)
+	}
 	done := make(chan struct{})
 	go s.work(done)
 	return func() { close(done) }
@@ -49,14 +54,14 @@ func (s *server) match(c chan struct{}) {
 		a2b := make(chan string)
 		b2a := make(chan string)
 		a.ch <- Communication{
-			Recn: tok,
-			Recv: b2a,
-			Send: a2b,
+			MatchId: tok,
+			Receive: b2a,
+			Send:    a2b,
 		}
 		b.ch <- Communication{
-			Recn: tok,
-			Recv: a2b,
-			Send: b2a,
+			MatchId: tok,
+			Receive: a2b,
+			Send:    b2a,
 		}
 		close(a.ch)
 		close(b.ch)
@@ -64,8 +69,8 @@ func (s *server) match(c chan struct{}) {
 	}
 }
 
-func (s *server) WantPlay(player string) <-chan Communication {
+func (s *server) Match(player string) <-chan Communication {
 	c := make(chan Communication)
-	go func() { s.wantPlay <- wantPlay{player, c} }()
+	s.wantPlay <- wantPlay{player, c}
 	return c
 }
