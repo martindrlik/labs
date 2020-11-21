@@ -1,10 +1,15 @@
 package player
 
+import "sync"
+
 type Players struct {
+	mu     sync.Mutex
 	online map[string]chan string
 }
 
 func (ps *Players) Register(players map[string]chan string) {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
 	newSize := len(ps.online) + len(players)
 	newData := make(map[string]chan string, newSize)
 	for k, v := range ps.online {
