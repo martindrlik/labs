@@ -8,8 +8,6 @@ import (
 	"github.com/martindrlik/labs/account"
 )
 
-const amanda = "amanda"
-
 func ExampleIsAvalilable() {
 	as := new(account.Accounts)
 	fmt.Println(as.IsAvailable(amanda))
@@ -22,7 +20,7 @@ func ExampleIsAvalilable() {
 
 func ExampleDeactivate() {
 	as := new(account.Accounts)
-	as.Add(map[string]account.Account{amanda: {}})
+	as.Add(map[string]account.Account{amanda: {Active: true}})
 	if as.Deactivate(amanda) {
 		fmt.Println("Amanda's account is deactivated")
 		fmt.Printf("Amanda's name is not available: %v\n", !as.IsAvailable(amanda))
@@ -73,5 +71,5 @@ func ExampleAccounts() {
 	enc.Encode(as.Accounts())
 	// Output:
 	// []
-	// [{"Name":"amanda","Inactive":false}]
+	// [{"Name":"amanda","Active":false}]
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type Account struct {
-	Inactive bool
+	Active bool
 }
 
 type Accounts struct {
@@ -40,10 +40,10 @@ func (as *Accounts) IsAvailable(name string) bool {
 // It returns false if account does not exist or is inactive.
 func (as *Accounts) Deactivate(name string) bool {
 	a, ok := as.byName[name]
-	if !ok || a.Inactive {
+	if !ok || !a.Active {
 		return false
 	}
-	a.Inactive = true
+	a.Active = false
 	as.byName[name] = a
 	return true
 }
