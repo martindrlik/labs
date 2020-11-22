@@ -1,6 +1,9 @@
 package account
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
 type Keys struct {
 	sync.Mutex
@@ -11,7 +14,7 @@ type Keys struct {
 func (ks *Keys) Add(keys ...string) {
 	ks.Lock()
 	defer ks.Unlock()
-	newSize := ks.countValid() + len(keys)
+	newSize := countValid(ks.keys) + len(keys)
 	newKeys := make(map[string]bool, newSize)
 	for k, valid := range ks.keys {
 		if !valid {
@@ -38,8 +41,22 @@ func (ks *Keys) Invalidate(key string) bool {
 	return false
 }
 
-func (ks *Keys) countValid() (count int) {
-	for _, valid := range ks.keys {
+// Keys returns slice of valid keys.
+func (ks *Keys) Keys() []string {
+	m := ks.keys
+	s := make([]string, 0, countValid(m))
+	for k, valid := range m {
+		if !valid {
+			continue
+		}
+		s = append(s, k)
+	}
+	sort.Strings(s)
+	return s
+}
+
+func countValid(m map[string]bool) (count int) {
+	for _, valid := range m {
 		if valid {
 			count++
 		}
