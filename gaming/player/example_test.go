@@ -8,7 +8,7 @@ import (
 
 func ExamplePlayers() {
 	ps := new(player.Players)
-	ps.Register(map[string]chan string{"Amanda": make(chan string, 1)})
+	ps.Add(map[string]chan string{"Amanda": make(chan string, 1)})
 	amanda, ok := ps.Player("Amanda")
 	if !ok {
 		fmt.Println("Amanda is not registered!")
