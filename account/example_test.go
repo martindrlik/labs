@@ -64,3 +64,14 @@ func ExampleKeys() {
 	// []
 	// ["amanda + amanda's password hash"]
 }
+
+func ExampleAccounts() {
+	as := new(account.Accounts)
+	enc := json.NewEncoder(os.Stdout)
+	enc.Encode(as.Accounts())
+	as.Add(map[string]account.Account{amanda: {}})
+	enc.Encode(as.Accounts())
+	// Output:
+	// []
+	// [{"Name":"amanda","Inactive":false}]
+}

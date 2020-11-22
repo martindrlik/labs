@@ -1,6 +1,9 @@
 package account
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
 type Account struct {
 	Inactive bool
@@ -43,4 +46,30 @@ func (as *Accounts) Deactivate(name string) bool {
 	a.Inactive = true
 	as.byName[name] = a
 	return true
+}
+
+func (as *Accounts) Accounts() []struct {
+	Name string
+	Account
+} {
+	m := as.byName
+	names := make([]string, 0, len(m))
+	for k := range m {
+		names = append(names, k)
+	}
+	sort.Strings(names)
+	s := make([]struct {
+		Name string
+		Account
+	}, len(names))
+	for i, name := range names {
+		s[i] = struct {
+			Name string
+			Account
+		}{
+			Name:    name,
+			Account: m[name],
+		}
+	}
+	return s
 }
