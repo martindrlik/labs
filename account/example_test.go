@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/martindrlik/labs/account"
 )
@@ -72,4 +73,27 @@ func ExampleAccounts() {
 	// Output:
 	// []
 	// [{"Name":"amanda","Active":false}]
+}
+
+func ExampleSessions() {
+	ss := &account.Sessions{
+		Now: time.Now,
+	}
+	const sessionKey = "sessionKey"
+	ss.Add(map[string]account.Session{
+		sessionKey: {
+			Active:  true,
+			ValidTo: time.Now().Add(time.Minute),
+		},
+	})
+	if ss.IsValid(sessionKey) {
+		fmt.Println("Session is valid")
+	}
+	ss.Now = func() time.Time { return time.Now().Add(2 * time.Minute) }
+	if !ss.IsValid(sessionKey) {
+		fmt.Println("Session is no longer valid")
+	}
+	// Output:
+	// Session is valid
+	// Session is no longer valid
 }
