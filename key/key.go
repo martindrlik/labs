@@ -48,7 +48,7 @@ func activeSize(d map[string]Value) (size int) {
 }
 
 // Value returns key given by its name and true.
-// It returns default value and false if there is no key for given name.
+// It returns default value if there is no key for given name.
 func (s *Store) Value(name string) Value { return s.data[name] }
 
 // Deactivate deactivates existing and active key and returns true.
