@@ -1,99 +1,31 @@
 package account_test
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
-	"os"
-	"time"
 
 	"github.com/martindrlik/labs/account"
 )
 
-func ExampleIsAvalilable() {
-	as := new(account.Accounts)
-	fmt.Println(as.IsAvailable(amanda))
-	as.Add(map[string]account.Account{amanda: {}})
-	fmt.Println(as.IsAvailable(amanda))
-	// Output:
-	// true
-	// false
-}
-
-func ExampleDeactivate() {
-	as := new(account.Accounts)
-	as.Add(map[string]account.Account{amanda: {Active: true}})
-	if as.Deactivate(amanda) {
-		fmt.Println("Amanda's account is deactivated")
-		fmt.Printf("Amanda's name is not available: %v\n", !as.IsAvailable(amanda))
+func ExampleAccountStore() {
+	const a = "a"
+	salt := []byte("salt")
+	s := new(account.Store)
+	if s.Add(map[string]account.Account{a: {Active: true, Salt: salt}}) {
+		fmt.Println("a is added")
+	}
+	if s.Account(a).Active {
+		fmt.Println("a is active")
+	}
+	if bytes.Equal(s.Account(a).Salt, salt) {
+		fmt.Println("a salt is salt")
+	}
+	if s.Deactivate(a) {
+		fmt.Println("a is deactivated")
 	}
 	// Output:
-	// Amanda's account is deactivated
-	// Amanda's name is not available: true
-}
-
-const amandakey = "amanda + amanda's password hash"
-
-func ExampleIsValid() {
-	ks := new(account.Keys)
-	fmt.Println(ks.IsValid(amandakey))
-	ks.Add(amandakey)
-	fmt.Println(ks.IsValid(amandakey))
-	// Output:
-	// false
-	// true
-}
-
-func ExampleInvalidate() {
-	ks := new(account.Keys)
-	ks.Add(amandakey)
-	if ks.Invalidate(amandakey) {
-		fmt.Printf("Amanda's key is no longer valid: %v\n", !ks.IsValid(amandakey))
-	}
-	// Output:
-	// Amanda's key is no longer valid: true
-}
-
-func ExampleKeys() {
-	ks := new(account.Keys)
-	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(ks.Keys())
-	ks.Add(amandakey)
-	enc.Encode(ks.Keys())
-	// Output:
-	// []
-	// ["amanda + amanda's password hash"]
-}
-
-func ExampleAccounts() {
-	as := new(account.Accounts)
-	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(as.Accounts())
-	as.Add(map[string]account.Account{amanda: {}})
-	enc.Encode(as.Accounts())
-	// Output:
-	// []
-	// [{"Name":"amanda","Active":false}]
-}
-
-func ExampleSessions() {
-	ss := &account.Sessions{
-		Now: time.Now,
-	}
-	const sessionKey = "sessionKey"
-	ss.Add(map[string]account.Session{
-		sessionKey: {
-			Active:  true,
-			ValidTo: time.Now().Add(time.Minute),
-		},
-	})
-	if ss.IsValid(sessionKey) {
-		fmt.Println("Session is valid")
-	}
-	ss.Now = func() time.Time { return time.Now().Add(2 * time.Minute) }
-	if !ss.IsValid(sessionKey) {
-		fmt.Println("Session is no longer valid")
-	}
-	// Output:
-	// Session is valid
-	// Session is no longer valid
+	// a is added
+	// a is active
+	// a salt is salt
+	// a is deactivated
 }
