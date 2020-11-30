@@ -14,10 +14,10 @@ func ExampleAccountStore() {
 	if s.Add(map[string]account.Account{a: {Active: true, Salt: salt}}) {
 		fmt.Println("a is added")
 	}
-	if s.Account(a).Active {
+	if s.Value(a).Active {
 		fmt.Println("a is active")
 	}
-	if bytes.Equal(s.Account(a).Salt, salt) {
+	if bytes.Equal(s.Value(a).Salt, salt) {
 		fmt.Println("a salt is salt")
 	}
 	if s.Deactivate(a) {

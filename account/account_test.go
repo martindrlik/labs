@@ -26,7 +26,7 @@ func TestAccounts(t *testing.T) {
 		}
 	})
 	t.Run("Account(a).Active", func(t *testing.T) {
-		if !s.Account(a).Active {
+		if !s.Value(a).Active {
 			t.Error("should be active")
 		}
 	})

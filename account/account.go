@@ -36,9 +36,9 @@ func (s *Store) Add(accounts map[string]Account) bool {
 	return true
 }
 
-// Account returns account given by its name and true.
+// Value returns account given by its name and true.
 // It returns default value if there is no account for given name.
-func (s *Store) Account(name string) Account { return s.data[name] }
+func (s *Store) Value(name string) Account { return s.data[name] }
 
 // IsAvailable returns true if given name is available.
 // It returns false if given name is already used.
